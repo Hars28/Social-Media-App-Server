@@ -8,6 +8,10 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import { register } from "./controllers/auth.js";
+import authRoutes from "./routers/auth.js"
+// import userRoutes from "./routers/user.js"
+
 /* CONFIGURATIONS */
 
 const __filename = fileURLToPath(import.meta.url);
@@ -17,13 +21,17 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-app.use(morgan("common"));
+app.use(morgan('common'));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
-app.use("/", (req,res) => {
-    res.send("HELLO")
-}) ;
+
+// routes
+
+app.use('/auth', authRoutes)
+// app.use('/users', userRoutes)
+
+
 
 /* FILE STORAGE */
 const storage = multer.diskStorage({
@@ -39,8 +47,12 @@ const upload = multer({ storage });
 /* ROUTES WITH FILES */
 app.post("/auth/register", upload.single("picture"), register);
 
+
+
+
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 8080;
+mongoose.set("strictQuery", true);
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
