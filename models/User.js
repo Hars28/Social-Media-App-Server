@@ -38,8 +38,8 @@ const UserSchema = new mongoose.Schema(
     viewedProfile: Number,
     impressions: Number,
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
-const User = mongoose.model("User", UserSchema);
+const User = mongoose.modelNames.Users || mongoose.model("User", UserSchema);
 export default User;
