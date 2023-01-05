@@ -11,6 +11,9 @@ const router = express.Router()
 
 
 
+
+
+
 // read api
 router.get('/', varifytoken, getFeedPosts)
 router.get("/:userId/posts", varifytoken, getUserPosts)
