@@ -1,5 +1,8 @@
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
+import jwt from "jsonwebtoken"
+
+
 export const register = async (req, res) => {
     try {
         const {
@@ -71,10 +74,39 @@ export const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) return res.status(403).json({ message: "Invalid credentials" })
 
-        res.status(200).json(await removehashpass(user))
+        // make token for authorization
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '3 days' })
+        const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15 days' })
+        res.status(200).json({
+            token,
+            refreshToken,
+            "data": await removehashpass(user)
+        })
     }
     catch (e) {
         res.status(500).json({ message: e.message })
     }
 
+}
+
+export const refresh = async (req, res) => {
+    try {
+        let refreshToken = req.headers['authorization']
+        if (!refreshToken) return res.status(400).json({ massage: "missing refreshToken" })
+
+        if (refreshToken.includes('Bearer ')) {
+            refreshToken = refreshToken.slice(7, refreshToken.length).trimLeft()
+        }
+        const varifygivenrefreshToken = jwt.verify(refreshToken, process.env.JWT_SECRET)
+        if (!varifygivenrefreshToken) return res.status(400).json({ massage: "invalid refreshToken or login again" })
+
+        const id = jwt.decode(varifygivenrefreshToken)
+
+        const newtoken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3 days' })
+
+        res.status(201).json({ massage: "refresh token", refreshToken: newtoken })
+
+    } catch (e) {
+        res.status(500).json({ message: e.message })
+    }
 }
