@@ -10,7 +10,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { register } from "./controllers/auth.js";
 import authRoutes from "./routers/auth.js"
-// import userRoutes from "./routers/user.js"
+import userRoutes from "./routers/user.js"
+import postsRoutes from "./routers/post.js"
+import { createPost } from "./controllers/post.js"
+import { varifytoken } from "./middleware/auth.js"
+import Post from "./models/Post.js"
+import User from "./models/User.js"
+import { posts, users } from "./data.js";
 
 /* CONFIGURATIONS */
 
@@ -29,8 +35,8 @@ app.use(cors());
 // routes
 
 app.use('/auth', authRoutes)
-// app.use('/users', userRoutes)
-
+app.use('/users', userRoutes)
+app.use("/posts", postsRoutes)
 
 
 /* FILE STORAGE */
@@ -46,7 +52,7 @@ const upload = multer({ storage });
 
 /* ROUTES WITH FILES */
 app.post("/auth/register", upload.single("picture"), register);
-
+app.post("/posts", varifytoken, upload.single("picture"), createPost);
 
 
 
@@ -66,3 +72,4 @@ mongoose
     // Post.insertMany(posts);
   })
   .catch((error) => console.log(`${error} did not connect`));
+  // mongosh "mongodb+srv://cluster0.8hsqavy.mongodb.net/socialmediaDB" --username socialmedia --password socialmedia
