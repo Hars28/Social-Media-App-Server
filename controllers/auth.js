@@ -10,11 +10,12 @@ export const register = async (req, res) => {
             lastName,
             email,
             password,
-            picturePath,
-            friends,
+            friends = [],
             location,
             occupation
         } = req.body
+        const picturePath = req.file.path
+        console.log("frontend call me ")
 
         const salt = await bcrypt.genSalt()
         const passwordHash = await bcrypt.hash(password, salt)
@@ -32,8 +33,10 @@ export const register = async (req, res) => {
             impressions: Math.floor(Math.random() * 500),
         })
         console.log(NewUser)
-        const addedUserDetails = await NewUser.save()
-        res.status(201).json(addedUserDetails)
+        const responce = await NewUser.save()
+
+        res.status(201).json(responce)
+
 
     } catch (e) {
         res.status(500).json({ message: e.message })
