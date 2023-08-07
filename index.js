@@ -31,11 +31,13 @@ app.use(morgan('common'));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
+app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+
 
 // routes
 
 app.use('/auth', authRoutes)
-app.use('/users', userRoutes)
+// app.use('/users', userRoutes)
 app.use("/posts", postsRoutes)
 
 
@@ -50,9 +52,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+
 /* ROUTES WITH FILES */
-app.post("/auth/register", upload.single("picture"), register);
-app.post("/posts", varifytoken, upload.single("picture"), createPost);
+app.post("/auth/register", upload.single("picturePath"), register);
+app.post("/posts", varifytoken, upload.single("picturePath"), createPost);
 
 
 
